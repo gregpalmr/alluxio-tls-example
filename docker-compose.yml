@@ -1,0 +1,394 @@
+version: '3.7'
+
+services:
+
+  create-tls-certs:
+    user: root
+    image: openjdk:18.0.2.1-jdk-slim-buster
+    hostname: create-tls-certs
+    container_name: create-tls-certs
+    restart: "no"
+    networks:
+      custom:
+        ipv4_address: 173.23.0.30
+    volumes:
+      - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
+      - ./alluxio-files/conf/masters:/opt/alluxio/conf/masters:ro
+      - ./alluxio-files/conf/workers:/opt/alluxio/conf/workers:ro
+      - keystore:/alluxio/certs
+    command: ["/scripts/create-tls-certs.sh"]
+
+  alluxio-master-1:
+    user: root
+    image: 'alluxio/alluxio-enterprise:latest'
+    hostname: alluxio-master-1
+    container_name: alluxio-master-1
+    networks:
+      custom:
+        ipv4_address: 173.23.0.5
+    depends_on:
+      - create-tls-certs
+      - minio-create-buckets
+    environment:
+      # Run the command outside of this file to get the base64 formated license file
+      # Like this: export ALLUXIO_LICENSE_BASE64=$(cat ./my-alluxio-license-file.json | base64)
+      ALLUXIO_LICENSE_BASE64: ${ALLUXIO_LICENSE_BASE64}
+    volumes:
+      - alluxio-data:/opt/alluxio/underFSStorage
+      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
+      - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
+      - keystore:/alluxio/certs
+    expose:
+      - 19998
+      - 19999
+      - 19200
+    ports:
+      - 19998:19998
+      - 19999:19999
+    entrypoint: >
+      /bin/sh -c "
+        /scripts/init-alluxio-node.sh
+        sleep 1000000 
+        #/entrypoint.sh master
+        "
+
+  alluxio-master-2:
+    user: root
+    image: 'alluxio/alluxio-enterprise:latest'
+    hostname: alluxio-master-2
+    container_name: alluxio-master-2
+    networks:
+      custom:
+        ipv4_address: 173.23.0.6
+    depends_on:
+      - create-tls-certs
+      - minio-create-buckets
+    environment:
+      # Run the command outside of this file to get the base64 formated license file
+      # Like this: export ALLUXIO_LICENSE_BASE64=$(cat ./my-alluxio-license-file.json | base64)
+      ALLUXIO_LICENSE_BASE64: ${ALLUXIO_LICENSE_BASE64}
+    volumes:
+      - alluxio-data:/opt/alluxio/underFSStorage
+      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
+      - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
+      - keystore:/alluxio/certs
+    expose:
+      - 19998
+      - 19999
+      - 19200
+    entrypoint: >
+      /bin/sh -c "
+        /scripts/init-alluxio-node.sh
+        sleep 1000000 
+        #/entrypoint.sh master
+        "
+
+  alluxio-master-3:
+    user: root
+    image: 'alluxio/alluxio-enterprise:latest'
+    hostname: alluxio-master-3
+    container_name: alluxio-master-3
+    networks:
+      custom:
+        ipv4_address: 173.23.0.7
+    depends_on:
+      - create-tls-certs
+      - minio-create-buckets
+    environment:
+      # Run the command outside of this file to get the base64 formated license file
+      # Like this: export ALLUXIO_LICENSE_BASE64=$(cat ./my-alluxio-license-file.json | base64)
+      ALLUXIO_LICENSE_BASE64: ${ALLUXIO_LICENSE_BASE64}
+    volumes:
+      - alluxio-data:/opt/alluxio/underFSStorage
+      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
+      - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
+      - keystore:/alluxio/certs
+    expose:
+      - 19998
+      - 19999
+      - 19200
+    entrypoint: >
+      /bin/sh -c "
+        /scripts/init-alluxio-node.sh
+        sleep 1000000 
+        #/entrypoint.sh master
+        "
+
+  alluxio-worker-1:
+    user: root
+    image: 'alluxio/alluxio-enterprise:latest'
+    hostname: alluxio-worker-1
+    container_name: alluxio-worker-1
+    networks:
+      custom:
+        ipv4_address: 173.23.0.11
+    shm_size: '1gb'
+    depends_on:
+      - create-tls-certs
+    volumes:
+      - alluxio-data:/opt/alluxio/underFSStorage
+      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
+      - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
+      - keystore:/alluxio/certs
+    expose:
+      - 29999
+      - 30000
+      - 30001
+      - 30003
+      - 39999
+    ports:
+      - 29999:29999
+      - 30000:30000
+      - 39999:39999
+    entrypoint: >
+      /bin/sh -c "
+        /scripts/init-alluxio-node.sh
+        #sleep 1000000 
+        /entrypoint.sh worker
+        "
+
+  alluxio-worker-2:
+    user: root
+    image: 'alluxio/alluxio-enterprise:latest'
+    hostname: alluxio-worker-2
+    container_name: alluxio-worker-2
+    networks:
+      custom:
+        ipv4_address: 173.23.0.12
+    shm_size: '1gb'
+    depends_on:
+      - create-tls-certs
+    volumes:
+      - alluxio-data:/opt/alluxio/underFSStorage
+      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
+      - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
+      - keystore:/alluxio/certs
+    expose:
+      - 29999
+      - 30000
+      - 30001
+      - 30003
+      - 39999
+    entrypoint: >
+      /bin/sh -c "
+        /scripts/init-alluxio-node.sh
+        sleep 1000000 
+        #/entrypoint.sh worker
+        "
+
+  alluxio-mount-minio-bucket:
+    image: 'alluxio/alluxio-enterprise:latest'
+    container_name: alluxio-mount-minio-bucket
+    networks:
+      custom:
+        ipv4_address: 173.23.0.21
+    depends_on:
+      - alluxio-master-1
+      - alluxio-master-2
+      - alluxio-master-3
+      - minio-create-buckets
+    volumes:
+      - ./alluxio-files/alluxio-site.properties-client:/opt/alluxio/conf/alluxio-site.properties:ro
+      - ./scripts/mount-minio-bucket.sh:/scripts/mount-minio-bucket.sh:ro
+      - ./alluxio-files/conf/log4j.properties:/opt/alluxio/conf/log4j.properties:ro
+    entrypoint: >
+      /bin/sh -c "
+        /scripts/init-alluxio-node.sh
+        /scripts/mount-minio-bucket.sh
+        "
+
+  mariadb:
+    image: 'mariadb:latest'
+    hostname: mariadb
+    container_name: mariadb
+    networks:
+      custom:
+        ipv4_address: 173.23.0.2
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: metastore_db
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+  trino-coordinator:
+    image: 'trinodb/trino:385'
+    hostname: trino-coordinator
+    container_name: trino-coordinator
+    networks:
+      custom:
+        ipv4_address: 173.23.0.15
+    depends_on:
+      - create-tls-certs
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./etc:/tmp/etc-trino
+      - ./alluxio-files:/tmp/alluxio-files
+      - ./conf:/tmp/conf
+      - keystore:/alluxio/certs
+    command:
+      - /bin/bash
+      - -c 
+      - |
+        find /usr/lib/trino -name alluxio*shaded* -exec rm {} \;
+        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /usr/lib/trino/plugin/hive/
+        cp -R /tmp/etc-trino/* /etc/trino/
+        cp /tmp/alluxio-files/alluxio-core-site.xml /etc/trino/core-site.xml
+        /usr/lib/trino/bin/run-trino
+
+  hive-metastore:
+    image: 'bitsondatadev/hive-metastore:latest'
+    hostname: hive-metastore
+    container_name: hive-metastore
+    networks:
+      custom:
+        ipv4_address: 173.23.0.4
+    ports:
+      - '9083:9083' # Metastore Thrift
+    volumes:
+      - ./conf/metastore-site.xml:/opt/apache-hive-metastore-3.0.0-bin/conf/metastore-site.xml:ro
+      - ./alluxio-files:/tmp/alluxio-files
+      - keystore:/alluxio/certs
+    environment:
+      METASTORE_DB_HOSTNAME: mariadb
+    depends_on:
+      - mariadb
+      - minio
+      - alluxio-mount-minio-bucket
+    entrypoint: >
+      /bin/sh -c "
+        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /opt/apache-hive-metastore-3.0.0-bin/lib/
+        echo '#### Hive /opt/apache-hive-metastore-3.0.0-bin/lib/ ###'
+        ls -al /opt/apache-hive-metastore-3.0.0-bin/lib/ | grep alluxio
+        sleep 1000000 
+        #/entrypoint.sh master
+        "
+
+  minio:
+    image: 'minio/minio:latest'
+    hostname: minio
+    container_name: minio
+    networks:
+      custom:
+        ipv4_address: 173.23.0.3
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server --console-address ":9001" /data
+
+  minio-create-buckets:
+    image: minio/mc:latest
+    container_name: minio-create-buckets
+    networks:
+      custom:
+        ipv4_address: 173.23.0.25
+    depends_on:
+      - minio
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc config host add myminio http://minio:9000 minio minio123;
+      if [ \"`/usr/bin/mc ls myminio`\" == \"\" ]; then 
+         echo \"Creating bucket myminio/hive\" && \
+         /usr/bin/mc mb myminio/hive && \
+         /usr/bin/mc policy download myminio/hive && \
+         /usr/bin/mc cp /etc/motd myminio/hive/warehouse/.temp_file; 
+      else 
+         echo \"Bucket myminio/hive already exists, skipping create\"; 
+      fi;
+      exit 0
+      "
+
+  spark-master:
+    image: docker.io/bitnami/spark:3.3
+    hostname: spark-master
+    container_name: spark-master
+    networks:
+      custom:
+        ipv4_address: 173.23.0.20
+    volumes:
+      - ./alluxio-files:/tmp/alluxio-files
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - 8081:8080
+    expose:
+      - 8081
+    command:
+      - /bin/sh
+      - -c 
+      - |
+        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /opt/bitnami/spark/jars/
+        echo "spark.hadoop.hive.metastore.uris=thrift://hive-metastore:9083" >> /opt/bitnami/spark/conf/spark-defaults.conf
+        cp /tmp/alluxio-files/alluxio-core-site.xml /opt/bitnami/spark/conf/core-site.xml
+        /opt/bitnami/scripts/spark/run.sh
+
+  spark-worker:
+    image: docker.io/bitnami/spark:3.3
+    hostname: spark-worker
+    container_name: spark-worker
+    networks:
+      custom:
+        ipv4_address: 173.23.0.24
+    volumes:
+      - ./alluxio-files:/tmp/alluxio-files
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    command:
+      - /bin/sh
+      - -c 
+      - |
+        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /opt/bitnami/spark/jars/
+        echo "spark.hadoop.hive.metastore.uris=thrift://hive-metastore:9083" >> /opt/bitnami/spark/conf/spark-defaults.conf
+        cp /tmp/alluxio-files/alluxio-core-site.xml /opt/bitnami/spark/conf/core-site.xml
+        /opt/bitnami/scripts/spark/run.sh
+    ports:
+      - 8082:8081
+    expose:
+      - 8082
+
+volumes:
+  keystore:
+    driver: local
+  mariadb-data:
+    driver: local
+  minio-data:
+    driver: local
+  alluxio-data:
+    driver: local
+
+networks:
+  custom:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 173.23.0.0/16
