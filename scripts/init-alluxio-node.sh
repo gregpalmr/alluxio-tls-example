@@ -22,11 +22,11 @@
      # Wait for the TLS certificates to be generated
      while true
      do
-       if [ -f /alluxio/certs/alluxio-client-truststore.jks ];
+       if [ -f /etc/alluxio/certs/all-alluxio-nodes-truststore.jks ];
        then
          break
        else
-         echo "Waiting for TLS certificates to be generated in /alluxio/certs dir"
+         echo "Waiting for TLS certificates to be generated in /etc/alluxio/certs dir"
          sleep 3
        fi
      done
