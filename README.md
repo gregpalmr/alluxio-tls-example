@@ -87,32 +87,24 @@ Open a bash shell to one of the master nodes and view the cert files and the All
 Inspect the TLS keystore and trustore files with these commands:
 
      ls -al /alluxio/certs/
-     total 60
-     drwxr-xr-x. 2 root root  4096 Feb  8 22:05 .
-     drwxr-xr-x. 3 root root    19 Feb  8 22:05 ..
-     -r--r-----. 1 root root 12520 Feb  8 22:05 all-masters-keystore.jks
-     -r--r-----. 1 root root  1254 Feb  8 22:05 alluxio-master-1-truststore.jks
-     -r--r-----. 1 root root  1241 Feb  8 22:05 alluxio-master-1.cert
-     -r--r-----. 1 root root  1254 Feb  8 22:05 alluxio-master-2-truststore.jks
-     -r--r-----. 1 root root  1241 Feb  8 22:05 alluxio-master-2.cert
-     -r--r-----. 1 root root  1254 Feb  8 22:05 alluxio-master-3-truststore.jks
-     -r--r-----. 1 root root  1237 Feb  8 22:05 alluxio-master-3.cert
-     -r--r-----. 1 root root  1254 Feb  8 22:05 alluxio-master-4-truststore.jks
-     -r--r-----. 1 root root  1237 Feb  8 22:05 alluxio-master-4.cert
-     -r--r-----. 1 root root  1254 Feb  8 22:05 alluxio-master-5-truststore.jks
-     -r--r-----. 1 root root  1237 Feb  8 22:05 alluxio-master-5.cert
+     total 20
+     drwxr-xr-x 2 root root 4096 Jul 18 22:03 .
+     drwxr-xr-x 3 root root 4096 Jul 18 22:03 ..
+     -r--r----- 1 root root 2862 Jul 18 22:03 all-alluxio-nodes-keystore.jks
+     -r--r--r-- 1 root root 1366 Jul 18 22:03 all-alluxio-nodes-truststore.jks
+     -r--r----- 1 root root 1387 Jul 18 22:03 all-alluxio-nodes.cert
 
 These keystore and trustore files were created by the create-tls-certs service in the docker-compose.yaml file and it called the script located here:
 
      cat /scripts/create-tls-certs.sh
 
-You can view the contents of the main keystore file (which contains the keys for each of the 3 master nodes) by using these commands:
+You can view the contents of the main keystore file (which contains the keys for each of the alluxio nodes) by using these commands:
 
-     keytool -list -v -keystore /alluxio/certs/all-masters-keystore.jks -storepass changeme123 | more 
+     keytool -list -v -keystore /alluxio/certs/all-alluxio-nodes-keystore.jks -storepass changeme123 | more
 
 or
 
-     keytool -list -v -keystore /alluxio/certs/all-masters-keystore.jks -storepass changeme123 | grep 'Owner:'
+     keytool -list -v -keystore /alluxio/certs/all-alluxio-nodes-keystore.jks -storepass changeme123 | grep 'Owner:'
 
 You can view the Alluxio properties file that references these keystore and trustore files using this command:
 
@@ -122,21 +114,23 @@ The key section that references the keystore and trustore files looks like this:
 
      # Master TLS properties
      alluxio.network.tls.enabled=true
-     alluxio.network.tls.keystore.path=/alluxio/certs/all-masters-keystore.jks
+     alluxio.network.tls.keystore.path=/etc/alluxio/certs/all-alluxio-nodes-keystore.jks
      alluxio.network.tls.keystore.password=changeme123
      alluxio.network.tls.keystore.key.password=changeme123
      alluxio.network.tls.keystore.alias=alluxio-master-1
-     #alluxio.network.tls.server.protocols=TLSv1.1,TLSv1.2
-     # 
-     # truststore properties for the client side of connections (worker to master, or master to master for embedded journal)
-     #alluxio.network.tls.enabled=true
-     alluxio.network.tls.truststore.path=/alluxio/certs/alluxio-master-1-truststore.jks
+
+     # Client TLS properties (worker to master, or master to master, client app to master/worker )
+     alluxio.network.tls.enabled=true
+     alluxio.network.tls.truststore.path=/etc/alluxio/certs/all-alluxio-nodes-truststore.jks
      alluxio.network.tls.truststore.password=changeme123
+     alluxio.network.tls.truststore.alias=alluxio-master-1
 
 ### Step 7. Start the Alluxio master node daemons
 
 You can start the Alluxio master node daemons using these commands:
 
+     su - alluxio
+     
      cd /opt/alluxio
      bin/alluxio-start.sh master
  
