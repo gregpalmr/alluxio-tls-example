@@ -3,7 +3,7 @@
 # SCRIPT: create-tls-certs.sh
 #
 
-  certs_dir=/etc/alluxio/certs
+  certs_dir=/alluxio/certs
   store_password="changeme123"
 
   echo "Creating SSL keys for masters"
