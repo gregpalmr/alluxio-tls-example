@@ -156,6 +156,8 @@ To access the Alluxio worker node containers, use these commands:
 
 You can start the Alluxio worker node daemons using these commands:
 
+     su - alluxio
+     
      cd /opt/alluxio
      bin/alluxio-start.sh worker
 
