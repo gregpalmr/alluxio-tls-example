@@ -20,14 +20,14 @@
      sed -i "s/THIS_HOSTNAME/${myhostname}/g" /opt/alluxio/conf/alluxio-site.properties
 
      # Wait for the TLS certificates to be generated
+     echo "Waiting for TLS certificates to be generated in /etc/alluxio/certs dir"
      while true
      do
-       if [ -f /etc/alluxio/certs/all-alluxio-nodes-truststore.jks ];
-       then
+       if [ -f /etc/alluxio/certs/all-alluxio-nodes-truststore.jks ]; then
          break
        else
-         echo "Waiting for TLS certificates to be generated in /etc/alluxio/certs dir"
-         sleep 3
+         echo "."
+         sleep 2
        fi
      done
 
