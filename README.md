@@ -65,7 +65,7 @@ The command will create the network object and the docker volumes, then it will 
 
 ### Step 5. Access the Alluxio Master Nodes
 
-Currently, this package deploys three Alluxio master node containers and two worker node containers, but it does NOT start the Alluxio master and worker daemons. This is so you can experiment with the TLS certificiates (stored in a shared volume and mounted on all containers at /alluxio/certs) and start and restart the master node and worker node daemons at will.
+Currently, this package deploys three Alluxio master node containers and two worker node containers, and it starts the Alluxio master node processes and the worker node processes.
 
 To access the Alluxio master node containers, use these commands:
 
@@ -125,49 +125,18 @@ The key section that references the keystore and trustore files looks like this:
      alluxio.network.tls.truststore.password=changeme123
      alluxio.network.tls.truststore.alias=alluxio-master-1
 
-### Step 7. Start the Alluxio master node daemons
 
-You can start the Alluxio master node daemons using these commands:
-
-     su - alluxio
-     
-     cd /opt/alluxio
-     bin/alluxio-start.sh master
- 
-View the master log file using this command:
-
-     tail -f logs/master.log
-
-Do the same for the second master node and the third master node.
-
-If they start successfully and the TLS certificates are configured correctly, you should be able to see a leading master with this command:
+View the Alluxio master nodes status using the following two commands:
 
      bin/alluxio fs masterInfo
 
-or
+and
 
      bin/alluxio fsadmin report
 
-### Step 8. Start the Alluxio worker node daemons
+These commands should show the leading master node and the standby master nodes as well as the "live" worker nodes.
 
-To access the Alluxio worker node containers, use these commands:
-
-     docker exec -it alluxio-worker-1 bash
-
-You can start the Alluxio worker node daemons using these commands:
-
-     su - alluxio
-     
-     cd /opt/alluxio
-     bin/alluxio-start.sh worker
-
-View the worker log file using this command:
-
-     tail -f logs/worker.log
- 
-Do the same for the second worker node.
-
-### Step 9. Destroy the containers
+### Step 7. Destroy the containers
 
 When finished, destroy the docker containers and clean up the docker volumes using these commands:
 
