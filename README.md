@@ -63,7 +63,7 @@ The command will create the network object and the docker volumes, then it will 
      Creating alluxio-mount-minio-bucket ... done
      Creating hive-metastore             ... done
 
-### Step 5. Access the Alluxio Master Nodes
+### Step 5. Access the Alluxio Master nodes and Worker nodes
 
 Currently, this package deploys three Alluxio master node containers and two worker node containers, and it starts the Alluxio master node processes and the worker node processes.
 
