@@ -246,6 +246,8 @@ services:
     networks:
       custom:
         ipv4_address: 173.23.0.4
+    expose:
+      - 9083
     ports:
       - '9083:9083' # Metastore Thrift
     volumes:
