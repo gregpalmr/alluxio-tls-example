@@ -6,11 +6,12 @@ services:
     user: root
     image: openjdk:18.0.2.1-jdk-slim-buster
     hostname: create-tls-certs
+    domainname: mycompany.com
     container_name: create-tls-certs
     restart: "no"
     networks:
       custom:
-        ipv4_address: 173.23.0.30
+        ipv4_address: 176.23.0.30
     volumes:
       - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
       - ./alluxio-files/conf/masters:/opt/alluxio/conf/masters:ro
@@ -19,13 +20,19 @@ services:
     command: ["/scripts/create-tls-certs.sh"]
 
   alluxio-master-1:
-    user: root
-    image: 'alluxio/alluxio-enterprise:2.9.0-2.0'
-    hostname: alluxio-master-1
     container_name: alluxio-master-1
+    user: root
+    image: 'alluxio/alluxio-enterprise:2.10.0-2.3'
+    hostname: alluxio-master-1
+    domainname: mycompany.com
+    extra_hosts:
+      - "alluxio-master-2.mycompany.com alluxio-master-2: 176.23.0.6"
+      - "alluxio-master-3.mycompany.com alluxio-master-3: 176.23.0.7"
+      - "alluxio-worker-1.mycompany.com alluxio-worker-1: 176.23.0.11"
+      - "alluxio-worker-2.mycompany.com alluxio-worker-2: 176.23.0.12"
     networks:
       custom:
-        ipv4_address: 173.23.0.5
+        ipv4_address: 176.23.0.5
     depends_on:
       - create-tls-certs
       - minio-create-buckets
@@ -52,13 +59,19 @@ services:
         "
 
   alluxio-master-2:
-    user: root
-    image: 'alluxio/alluxio-enterprise:2.9.0-2.0'
-    hostname: alluxio-master-2
     container_name: alluxio-master-2
+    user: root
+    image: 'alluxio/alluxio-enterprise:2.10.0-2.3'
+    hostname: alluxio-master-2
+    domainname: mycompany.com
+    extra_hosts:
+      - "alluxio-master-1.mycompany.com alluxio-master-1: 176.23.0.5"
+      - "alluxio-master-3.mycompany.com alluxio-master-3: 176.23.0.7"
+      - "alluxio-worker-1.mycompany.com alluxio-worker-1: 176.23.0.11"
+      - "alluxio-worker-2.mycompany.com alluxio-worker-2: 176.23.0.12"
     networks:
       custom:
-        ipv4_address: 173.23.0.6
+        ipv4_address: 176.23.0.6
     depends_on:
       - create-tls-certs
       - minio-create-buckets
@@ -75,6 +88,8 @@ services:
       - 19998
       - 19999
       - 19200
+    ports:
+      - 18999:19999
     entrypoint: >
       /bin/sh -c "
         /scripts/init-alluxio-node.sh
@@ -82,13 +97,19 @@ services:
         "
 
   alluxio-master-3:
-    user: root
-    image: 'alluxio/alluxio-enterprise:2.9.0-2.0'
-    hostname: alluxio-master-3
     container_name: alluxio-master-3
+    user: root
+    image: 'alluxio/alluxio-enterprise:2.10.0-2.3'
+    hostname: alluxio-master-3
+    domainname: mycompany.com
+    extra_hosts:
+      - "alluxio-master-1.mycompany.com alluxio-master-1: 176.23.0.5"
+      - "alluxio-master-2.mycompany.com alluxio-master-2: 176.23.0.6"
+      - "alluxio-worker-1.mycompany.com alluxio-worker-1: 176.23.0.11"
+      - "alluxio-worker-2.mycompany.com alluxio-worker-2: 176.23.0.12"
     networks:
       custom:
-        ipv4_address: 173.23.0.7
+        ipv4_address: 176.23.0.7
     depends_on:
       - create-tls-certs
       - minio-create-buckets
@@ -105,6 +126,8 @@ services:
       - 19998
       - 19999
       - 19200
+    ports:
+      - 17999:19999
     entrypoint: >
       /bin/sh -c "
         /scripts/init-alluxio-node.sh
@@ -113,12 +136,18 @@ services:
 
   alluxio-worker-1:
     user: root
-    image: 'alluxio/alluxio-enterprise:2.9.0-2.0'
+    image: 'alluxio/alluxio-enterprise:2.10.0-2.3'
     hostname: alluxio-worker-1
+    domainname: mycompany.com
+    extra_hosts:
+      - "alluxio-master-1.mycompany.com alluxio-master-1: 176.23.0.5"
+      - "alluxio-master-2.mycompany.com alluxio-master-2: 176.23.0.6"
+      - "alluxio-master-3.mycompany.com alluxio-master-3: 176.23.0.7"
+      - "alluxio-worker-2.mycompany.com alluxio-worker-2: 176.23.0.12"
     container_name: alluxio-worker-1
     networks:
       custom:
-        ipv4_address: 173.23.0.11
+        ipv4_address: 176.23.0.11
     shm_size: '1gb'
     depends_on:
       - create-tls-certs
@@ -145,12 +174,18 @@ services:
 
   alluxio-worker-2:
     user: root
-    image: 'alluxio/alluxio-enterprise:2.9.0-2.0'
+    image: 'alluxio/alluxio-enterprise:2.10.0-2.3'
     hostname: alluxio-worker-2
+    domainname: mycompany.com
+    extra_hosts:
+      - "alluxio-master-1.mycompany.com alluxio-master-1: 176.23.0.5"
+      - "alluxio-master-2.mycompany.com alluxio-master-2: 176.23.0.6"
+      - "alluxio-master-3.mycompany.com alluxio-master-3: 176.23.0.7"
+      - "alluxio-worker-1.mycompany.com alluxio-worker-1: 176.23.0.11"
     container_name: alluxio-worker-2
     networks:
       custom:
-        ipv4_address: 173.23.0.12
+        ipv4_address: 176.23.0.12
     shm_size: '1gb'
     depends_on:
       - create-tls-certs
@@ -177,7 +212,7 @@ services:
     user: root
     networks:
       custom:
-        ipv4_address: 173.23.0.21
+        ipv4_address: 176.23.0.21
     depends_on:
       - alluxio-master-1
       - alluxio-master-2
@@ -199,10 +234,11 @@ services:
   mariadb:
     image: 'mariadb:latest'
     hostname: mariadb
+    domainname: mycompany.com
     container_name: mariadb
     networks:
       custom:
-        ipv4_address: 173.23.0.2
+        ipv4_address: 176.23.0.2
     expose:
       - 3306
     environment:
@@ -216,10 +252,11 @@ services:
   trino-coordinator:
     image: 'trinodb/trino:431'
     hostname: trino-coordinator
+    domainname: mycompany.com
     container_name: trino-coordinator
     networks:
       custom:
-        ipv4_address: 173.23.0.15
+        ipv4_address: 176.23.0.15
     depends_on:
       - create-tls-certs
     ports:
@@ -242,10 +279,11 @@ services:
   hive-metastore:
     image: 'bitsondatadev/hive-metastore:latest'
     hostname: hive-metastore
+    domainname: mycompany.com
     container_name: hive-metastore
     networks:
       custom:
-        ipv4_address: 173.23.0.4
+        ipv4_address: 176.23.0.4
     expose:
       - 9083
     ports:
@@ -271,10 +309,11 @@ services:
   minio:
     image: 'minio/minio:latest'
     hostname: minio
+    domainname: mycompany.com
     container_name: minio
     networks:
       custom:
-        ipv4_address: 173.23.0.3
+        ipv4_address: 176.23.0.3
     ports:
       - '9000:9000'
       - '9001:9001'
@@ -290,7 +329,7 @@ services:
     container_name: minio-create-buckets
     networks:
       custom:
-        ipv4_address: 173.23.0.25
+        ipv4_address: 176.23.0.25
     depends_on:
       - minio
     environment:
@@ -314,10 +353,11 @@ services:
   spark-master:
     image: docker.io/bitnami/spark:3.3
     hostname: spark-master
+    domainname: mycompany.com
     container_name: spark-master
     networks:
       custom:
-        ipv4_address: 173.23.0.20
+        ipv4_address: 176.23.0.20
     volumes:
       - ./alluxio-files:/tmp/alluxio-files
     environment:
@@ -342,10 +382,11 @@ services:
   spark-worker:
     image: docker.io/bitnami/spark:3.3
     hostname: spark-worker
+    domainname: mycompany.com
     container_name: spark-worker
     networks:
       custom:
-        ipv4_address: 173.23.0.24
+        ipv4_address: 176.23.0.24
     volumes:
       - ./alluxio-files:/tmp/alluxio-files
     environment:
@@ -386,4 +427,4 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 173.23.0.0/16
+      - subnet: 176.23.0.0/16

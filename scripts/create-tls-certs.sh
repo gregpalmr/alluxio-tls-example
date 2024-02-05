@@ -12,25 +12,15 @@
     \rm -rf $certs_dir/*
   fi
 
-  # Create the "Subject Alternative Name" (SAN) field
-  san=""
-  for fqdn in $(cat /opt/alluxio/conf/masters /opt/alluxio/conf/workers)
-  do
-    if [[ ${san} == "" ]];
-    then
-      san='dns:'${fqdn}
-    else
-      san=${san}',dns:'${fqdn}
-    fi
-  done
-  echo "Using Subect Alternative Names (SAN): " ${san}
+  # Set the domain to use with the keystore and trustore
+  domain_name="mycompany.com"
 
-  # Generate the keystore and certificate
+  # Generate the keystore and certificate - use a wildcard in the SAN spec
   echo Generating the keystore and certificate
   keytool -genkeypair -keypass ${store_password} -storepass ${store_password}  \
        -keyalg RSA -keysize 2048 \
        -alias all-alluxio-nodes \
-       -dname "CN=all-alluxio-nodes, OU=Alluxio, L=San Mateo, ST=CA, C=US" -ext san=${san} \
+       -dname "CN=*.${domain_name}, OU=My Dept, O=My Company, L=Foster City, ST=CA, C=US" -ext san="DNS:*.${domain_name}" \
        -keystore ${certs_dir}/all-alluxio-nodes-keystore.jks
 
   # Export the certificate’s public key to a certificate file
