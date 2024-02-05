@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<configuration>
+
+    <!-- Enable the Alluxio Transparent URI feature for s3 and s3a end-points -->
+    <property>
+        <name>fs.s3a.impl</name>
+        <value>alluxio.hadoop.ShimFileSystem</value>
+     </property>
+     <property>
+	  <name>fs.AbstractFileSystem.s3a.impl</name>
+	  <value>alluxio.hadoop.AlluxioShimFileSystem</value>
+     </property>
+
+    <!-- Enable the Alluxio Transparent URI feature for HDFS end-points -->
+	<property>
+  	  <name>fs.hdfs.impl</name>
+  	  <value>alluxio.hadoop.ShimFileSystem</value>
+	</property>
+	<property>
+	  <name>fs.AbstractFileSystem.hdfs.impl</name>
+	  <value>alluxio.hadoop.AlluxioShimFileSystem</value>
+     </property>
+
+     <!-- Don't apply Transparent URI for these files -->
+	<property>
+  	  <name>alluxio.user.shimfs.bypass.prefix.list</name>
+  	  <value></value>
+     </property>
+
+     <!-- Don't auto mount Alluxio mounts -->
+	<property>
+  	  <name>alluxio.master.shimfs.auto.mount.enabled</name>
+  	  <value>false</value>
+	</property>
+
+     <!-- Specify the Alluxio HA masters -->
+    	<property>
+  	  <name>alluxio.master.rpc.addresses</name>
+       <value>alluxio-master-1.mycompany.com:19998,alluxio-master-2.mycompany.com:19998,alluxio-master-3.mycompany.com:19998</value>
+	</property>
+
+     <!-- Tell Alluxio to CACHE data when it is read for the first time -->
+    	<property>
+  	  <name>alluxio.user.file.readtype.default</name>
+  	  <value>CACHE</value>
+	</property>
+
+     <!-- Enable client-side (northbound) impersonation in Alluxio -->
+     <property>
+       <name>alluxio.security.login.impersonation.username</name>
+       <value>_HDFS_USER_</value>
+     </property>
+
+     <!-- Configure Alluxio Truststore to access Alluxio master and worker nodes -->
+     <property>
+       <name>alluxio.network.tls.enabled</name>
+       <value>true</value>
+     </property>
+     <property>
+       <name>alluxio.network.tls.truststore.path</name>
+       <value>/etc/alluxio/certs/all-alluxio-nodes-truststore.jks</value>
+     </property>
+     <property>
+       <name>alluxio.network.tls.truststore.password</name>
+       <value>changeme123</value>
+     </property>
+
+</configuration>
