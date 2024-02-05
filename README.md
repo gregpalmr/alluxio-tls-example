@@ -159,7 +159,7 @@ Or the core-site.xml file that is referenced in the Trino catalog properties fil
        <value>changeme123</value>
      </property>
 
-### Step 9. Test the Trino access using TLS configuration
+### Step 8. Test the Trino access using TLS configuration
 
 a. Open a shell session into the trino-coordinator Docker container using the command:
 
@@ -221,7 +221,7 @@ You should see some cache space being used by the Alluxio worker nodes, like thi
              Tier: MEM  Size: 647.4MB
          Free Capacity: 1363.00MB
 
-### Step 10. Destroy the containers
+### Step 9. Destroy the containers
 
 When finished, destroy the docker containers and clean up the docker volumes using these commands:
 
