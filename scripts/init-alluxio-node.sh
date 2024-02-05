@@ -4,11 +4,11 @@
 #
 
      # Copy the Alluxio conf files from tmp dir
-     cp /tmp/alluxio-files/conf/alluxio-site.properties /opt/alluxio/conf/alluxio-site.properties
-     cp /tmp/alluxio-files/conf/alluxio-env.sh /opt/alluxio/conf/alluxio-env.sh
-     cp /tmp/alluxio-files/conf/log4j.properties /opt/alluxio/conf/log4j.properties
-     cp /tmp/alluxio-files/conf/masters /opt/alluxio/conf/masters
-     cp /tmp/alluxio-files/conf/workers /opt/alluxio/conf/workers
+     cp /tmp/config-files/alluxio/conf/alluxio-site.properties /opt/alluxio/conf/alluxio-site.properties
+     cp /tmp/config-files/alluxio/conf/alluxio-env.sh /opt/alluxio/conf/alluxio-env.sh
+     cp /tmp/config-files/alluxio/conf/log4j.properties /opt/alluxio/conf/log4j.properties
+     cp /tmp/config-files/alluxio/conf/masters /opt/alluxio/conf/masters
+     cp /tmp/config-files/alluxio/conf/workers /opt/alluxio/conf/workers
      chmod 744 /opt/alluxio/conf/*
 
      # Copy the license key to a file
