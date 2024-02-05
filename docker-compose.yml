@@ -14,8 +14,8 @@ services:
         ipv4_address: 176.23.0.30
     volumes:
       - ./scripts/create-tls-certs.sh:/scripts/create-tls-certs.sh:ro
-      - ./alluxio-files/conf/masters:/opt/alluxio/conf/masters:ro
-      - ./alluxio-files/conf/workers:/opt/alluxio/conf/workers:ro
+      - ./config-files/alluxio/conf/masters:/opt/alluxio/conf/masters:ro
+      - ./config-files/alluxio/conf/workers:/opt/alluxio/conf/workers:ro
       - keystore:/etc/alluxio/certs
     command: ["/scripts/create-tls-certs.sh"]
 
@@ -42,7 +42,7 @@ services:
       ALLUXIO_LICENSE_BASE64: ${ALLUXIO_LICENSE_BASE64}
     volumes:
       - alluxio-data:/opt/alluxio/underFSStorage
-      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./config-files:/tmp/config-files:ro
       - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
       - keystore:/etc/alluxio/certs
     expose:
@@ -81,7 +81,7 @@ services:
       ALLUXIO_LICENSE_BASE64: ${ALLUXIO_LICENSE_BASE64}
     volumes:
       - alluxio-data:/opt/alluxio/underFSStorage
-      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./config-files:/tmp/config-files:ro
       - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
       - keystore:/etc/alluxio/certs
     expose:
@@ -119,7 +119,7 @@ services:
       ALLUXIO_LICENSE_BASE64: ${ALLUXIO_LICENSE_BASE64}
     volumes:
       - alluxio-data:/opt/alluxio/underFSStorage
-      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./config-files:/tmp/config-files:ro
       - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
       - keystore:/etc/alluxio/certs
     expose:
@@ -153,7 +153,7 @@ services:
       - create-tls-certs
     volumes:
       - alluxio-data:/opt/alluxio/underFSStorage
-      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./config-files:/tmp/config-files:ro
       - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
       - keystore:/etc/alluxio/certs
     expose:
@@ -191,7 +191,7 @@ services:
       - create-tls-certs
     volumes:
       - alluxio-data:/opt/alluxio/underFSStorage
-      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./config-files:/tmp/config-files:ro
       - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
       - keystore:/etc/alluxio/certs
     expose:
@@ -220,7 +220,7 @@ services:
       - minio-create-buckets
     volumes:
       - alluxio-data:/opt/alluxio/underFSStorage
-      - ./alluxio-files/conf:/tmp/alluxio-files/conf:ro
+      - ./config-files:/tmp/config-files:ro
       - ./scripts/init-alluxio-node.sh:/scripts/init-alluxio-node.sh:ro
       - ./scripts/mount-minio-bucket.sh:/scripts/mount-minio-bucket.sh:ro
       - keystore:/etc/alluxio/certs
@@ -253,6 +253,12 @@ services:
     image: 'trinodb/trino:431'
     hostname: trino-coordinator
     domainname: mycompany.com
+    extra_hosts:
+      - "alluxio-master-1.mycompany.com alluxio-master-1: 176.23.0.5"
+      - "alluxio-master-2.mycompany.com alluxio-master-2: 176.23.0.6"
+      - "alluxio-master-3.mycompany.com alluxio-master-3: 176.23.0.7"
+      - "alluxio-worker-1.mycompany.com alluxio-worker-1: 176.23.0.11"
+      - "alluxio-worker-2.mycompany.com alluxio-worker-2: 176.23.0.12"
     container_name: trino-coordinator
     networks:
       custom:
@@ -263,7 +269,7 @@ services:
       - '8080:8080'
     volumes:
       - ./etc:/tmp/etc-trino
-      - ./alluxio-files:/tmp/alluxio-files
+      - ./config-files:/tmp/config-files:ro
       - ./conf:/tmp/conf
       - keystore:/etc/alluxio/certs
     command:
@@ -271,9 +277,9 @@ services:
       - -c 
       - |
         find /usr/lib/trino -name alluxio*shaded* -exec rm {} \;
-        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /usr/lib/trino/plugin/hive/
-        cp -R /tmp/etc-trino/* /etc/trino/
-        cp /tmp/alluxio-files/alluxio-core-site.xml /etc/trino/core-site.xml
+        cp /tmp/config-files/alluxio/alluxio-enterprise-*-client.jar /usr/lib/trino/plugin/hive/
+        cp -R /tmp/config-files/trino/* /etc/trino/
+        cp /tmp/config-files/alluxio/alluxio-core-site.xml /etc/trino/core-site.xml
         /usr/lib/trino/bin/run-trino
 
   hive-metastore:
@@ -289,9 +295,8 @@ services:
     ports:
       - '9083:9083' # Metastore Thrift
     volumes:
-      - ./conf/metastore-site.xml:/opt/apache-hive-metastore-3.0.0-bin/conf/metastore-site.xml:ro
-      - ./alluxio-files:/tmp/alluxio-files
-      - keystore:/etc/alluxio/certs
+      - ./config-files:/tmp/config-files:ro
+      - keystore:/etc/alluxio/certs:ro
     environment:
       METASTORE_DB_HOSTNAME: mariadb
     depends_on:
@@ -300,7 +305,8 @@ services:
       - alluxio-mount-minio-bucket
     entrypoint: >
       /bin/sh -c "
-        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /opt/apache-hive-metastore-3.0.0-bin/lib/
+        cp /tmp/config-files/hive/metastore-site.xml /opt/apache-hive-metastore-3.0.0-bin/conf/metastore-site.xml
+        cp /tmp/config-files/alluxio/alluxio-enterprise-*-client.jar /opt/apache-hive-metastore-3.0.0-bin/lib/
         echo '#### Hive /opt/apache-hive-metastore-3.0.0-bin/lib/ ###'
         ls -al /opt/apache-hive-metastore-3.0.0-bin/lib/ | grep alluxio
         /entrypoint.sh master
@@ -359,7 +365,7 @@ services:
       custom:
         ipv4_address: 176.23.0.20
     volumes:
-      - ./alluxio-files:/tmp/alluxio-files
+      - ./config-files:/tmp/config-files:ro
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
@@ -374,9 +380,9 @@ services:
       - /bin/sh
       - -c 
       - |
-        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /opt/bitnami/spark/jars/
+        cp /tmp/config-files/alluxio/alluxio-enterprise-*-client.jar /opt/bitnami/spark/jars/
         echo "spark.hadoop.hive.metastore.uris=thrift://hive-metastore:9083" >> /opt/bitnami/spark/conf/spark-defaults.conf
-        cp /tmp/alluxio-files/alluxio-core-site.xml /opt/bitnami/spark/conf/core-site.xml
+        cp /tmp/config-files/alluxio/alluxio-core-site.xml /opt/bitnami/spark/conf/core-site.xml
         /opt/bitnami/scripts/spark/run.sh
 
   spark-worker:
@@ -388,7 +394,7 @@ services:
       custom:
         ipv4_address: 176.23.0.24
     volumes:
-      - ./alluxio-files:/tmp/alluxio-files
+      - ./config-files:/tmp/config-files:ro
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -402,9 +408,9 @@ services:
       - /bin/sh
       - -c 
       - |
-        cp /tmp/alluxio-files/alluxio-enterprise-*-client.jar /opt/bitnami/spark/jars/
+        cp /tmp/config-files/alluxio/alluxio-enterprise-*-client.jar /opt/bitnami/spark/jars/
         echo "spark.hadoop.hive.metastore.uris=thrift://hive-metastore:9083" >> /opt/bitnami/spark/conf/spark-defaults.conf
-        cp /tmp/alluxio-files/alluxio-core-site.xml /opt/bitnami/spark/conf/core-site.xml
+        cp /tmp/config-files/alluxio/alluxio-core-site.xml /opt/bitnami/spark/conf/core-site.xml
         /opt/bitnami/scripts/spark/run.sh
     ports:
       - 8082:8081
