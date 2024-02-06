@@ -169,7 +169,7 @@ b. In the trino-coordinator shell session window, start a Trino command line ses
 
      trino --catalog hive --debug
 
-The TPC/H Trino catalog has been pre-configured for this Trino instance and there is a table named "tpch.sf100.customer" that contains about 15 million rows. We will use that table to create a new table in the local MinIO storage environment. Run the following Trino CREATE TABLE command:
+The TPC/H Trino catalog has been pre-configured for this Trino instance and there is a table named "tpch.sf10.customer" that contains about 1.5 million rows. We will use that table to create a new table in the local MinIO storage environment. Run the following Trino CREATE TABLE command:
 
      -- Create a 1.5M row table in MinIO storage
      USE default;
