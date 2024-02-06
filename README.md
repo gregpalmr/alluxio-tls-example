@@ -108,7 +108,7 @@ These keystore and truststore files were created by the create-tls-certs service
 
 You can view the contents of the main keystore file (which contains the keys for each of the alluxio nodes) by using these commands:
 
-     keytool -list -v -keystore /alluxio/certs/all-alluxio-nodes-keystore.jks -storepass changeme123 
+     keytool -list -v -keystore /etc/alluxio/certs/all-alluxio-nodes-keystore.jks -storepass changeme123 
 
 You can view the Alluxio properties file that references these keystore and truststore files using this command:
 
